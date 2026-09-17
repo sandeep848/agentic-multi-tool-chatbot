@@ -29,7 +29,9 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains.retrieval import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain\n\nfrom routing import choose_source
+from langchain.chains.combine_documents import create_stuff_documents_chain
+
+from routing import choose_source
 
 # ---- SETUP ----
 load_dotenv()
@@ -198,7 +200,8 @@ if prompt := st.chat_input("Ask me anything..."):
     with st.chat_message("assistant"):
         cb = StreamlitCallbackHandler(st.container())
         try:
-            if use_pdf and rag_chain:
+            route = choose_source(prompt, bool(rag_chain), use_pdf)
+            if route == "documents":
                 out = rag_chain.invoke({"input": prompt}, {"configurable": {"session_id": "default"}})
                 answer = out.get("answer", "")
                 if not answer:
